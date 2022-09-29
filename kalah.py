@@ -11,18 +11,20 @@ WIDTH = 1000
 HEIGHT = 400
 
 BG_COLOR = (255, 180, 100)
-TEXT_COLOR = (255, 0, 0)
+TEXT_COLOR = (255, 0, 0) #Pions
+TEXT2_COLOR = (0, 0, 255) #Joueurs
 LINE_COLOR = (80, 60, 40)
 LINE_WIDTH = 15
 NB_COL = 8
 COL_SIZE = WIDTH/NB_COL
+PIONS = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
 
 
 screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
 pygame.display.set_caption( 'Kalah' )
 sysfont = pygame.font.get_default_font() #Police d'écriture
 font = pygame.font.SysFont(None, 48)
-screen.fill( BG_COLOR )
+font2 = pygame.font.SysFont(None, 24)
 
 def draw_lines():
     for col in range(1, NB_COL):
@@ -30,26 +32,39 @@ def draw_lines():
     
     pygame.draw.line(screen, LINE_COLOR, (COL_SIZE, HEIGHT/2), (WIDTH-COL_SIZE, HEIGHT/2), LINE_WIDTH)
 
-def display_text(texte, x, y):
-    imgfont = font.render(texte, True, TEXT_COLOR)
-    screen.blit(imgfont, (x,y))
+def display_text(joueur):
+    K1 = NB_COL-2 #6
+    K2 = K1*2 + 1 #13
+    for pion in range(len(PIONS)):
+        imgfont = font.render(str(PIONS[pion]), True, TEXT_COLOR)
+        if joueur == 0:
+            if pion < K1:
+                screen.blit(imgfont, (COL_SIZE*(K1-pion)+COL_SIZE/2, HEIGHT/4))
+            elif pion == K1:
+                screen.blit(imgfont, (COL_SIZE/2, HEIGHT/2))
+            elif pion < K2:
+                screen.blit(imgfont, (COL_SIZE*(pion-K1)+COL_SIZE/2, HEIGHT*3/4))
+            else:
+                screen.blit(imgfont, (WIDTH-COL_SIZE/2, HEIGHT/2))
+            imgfont = font2.render("Joueur 1", True, TEXT2_COLOR)
+        elif joueur == 1:
+            if pion < K1:
+                screen.blit(imgfont, (COL_SIZE*(pion+1)+COL_SIZE/2, HEIGHT*3/4))
+            elif pion == K1:
+                screen.blit(imgfont, (WIDTH-COL_SIZE/2, HEIGHT/2))
+            elif pion < K2:
+                screen.blit(imgfont, (COL_SIZE*(K2-pion)+COL_SIZE/2, HEIGHT/4))
+            else:
+                screen.blit(imgfont, (COL_SIZE/2, HEIGHT/2))
+            imgfont = font2.render("Joueur 2", True, TEXT2_COLOR)
+        screen.blit(imgfont, (WIDTH-COL_SIZE+LINE_WIDTH, HEIGHT-LINE_WIDTH))
 
-draw_lines()
-display_text("0", COL_SIZE/2, HEIGHT/2)
-display_text("0", WIDTH-COL_SIZE/2, HEIGHT/2)
-display_text("3", COL_SIZE+COL_SIZE/2, HEIGHT/4)
-display_text("3", COL_SIZE*2+COL_SIZE/2, HEIGHT/4)
-display_text("3", COL_SIZE*3+COL_SIZE/2, HEIGHT/4)
-display_text("3", COL_SIZE*4+COL_SIZE/2, HEIGHT/4)
-display_text("3", COL_SIZE*5+COL_SIZE/2, HEIGHT/4)
-display_text("3", COL_SIZE*6+COL_SIZE/2, HEIGHT/4)
-display_text("3", COL_SIZE+COL_SIZE/2, HEIGHT*3/4)
-display_text("3", COL_SIZE*2+COL_SIZE/2, HEIGHT*3/4)
-display_text("3", COL_SIZE*3+COL_SIZE/2, HEIGHT*3/4)
-display_text("3", COL_SIZE*4+COL_SIZE/2, HEIGHT*3/4)
-display_text("3", COL_SIZE*5+COL_SIZE/2, HEIGHT*3/4)
-display_text("3", COL_SIZE*6+COL_SIZE/2, HEIGHT*3/4)
+def display(joueur):
+    screen.fill( BG_COLOR )
+    draw_lines()
+    display_text(joueur)
 
+display(0)
 
 game_over = False
 running = True
@@ -58,7 +73,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouseX = event.pos[0] 
+            mouseY = event.pos[1] 
+            clicked_col = int(mouseX // COL_SIZE)
+            if clicked_col not in [0, NB_COL-1] and mouseY >= HEIGHT/2:
+                print(clicked_col)
+            
     pygame.display.update()
     
 pygame.quit()
