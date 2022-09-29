@@ -18,6 +18,8 @@ LINE_WIDTH = 15
 NB_COL = 8
 COL_SIZE = WIDTH/NB_COL
 PIONS = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
+K1 = NB_COL-2 #6, indice du kalah 1
+K2 = K1*2 + 1 #13, indice du kalah 2
 
 
 screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
@@ -32,9 +34,7 @@ def draw_lines():
     
     pygame.draw.line(screen, LINE_COLOR, (COL_SIZE, HEIGHT/2), (WIDTH-COL_SIZE, HEIGHT/2), LINE_WIDTH)
 
-def display_text(joueur):
-    K1 = NB_COL-2 #6
-    K2 = K1*2 + 1 #13
+def display_text():
     for pion in range(len(PIONS)):
         imgfont = font.render(str(PIONS[pion]), True, TEXT_COLOR)
         if joueur == 0:
@@ -59,15 +59,40 @@ def display_text(joueur):
             imgfont = font2.render("Joueur 2", True, TEXT2_COLOR)
         screen.blit(imgfont, (WIDTH-COL_SIZE+LINE_WIDTH, HEIGHT-LINE_WIDTH))
 
-def display(joueur):
-    screen.fill( BG_COLOR )
+def display():
+    screen.fill(BG_COLOR)
     draw_lines()
-    display_text(joueur)
+    display_text()
 
-display(0)
+def semer(col):
+    if joueur == 0:
+        pions = PIONS[K1+col]
+        if pions == 0:
+            return False
+        for pion in range(pions):
+            PIONS[(K1+1+col+pion)%(K2+1)] += 1
+            PIONS[K1+col] -= 1
+    else:
+        pions = PIONS[col-1]
+        if pions == 0:
+            return False
+        for pion in range(pions):
+            PIONS[(col+pion)%(K2+1)] += 1
+            PIONS[col-1] -= 1
+    print(PIONS)
 
+def changer_joueur():
+    global joueur
+    if joueur == 0:
+        joueur = 1
+    else:
+        joueur = 0
+
+joueur = 0
 game_over = False
 running = True
+
+display()
 
 while running:
     for event in pygame.event.get():
@@ -79,7 +104,9 @@ while running:
             mouseY = event.pos[1] 
             clicked_col = int(mouseX // COL_SIZE)
             if clicked_col not in [0, NB_COL-1] and mouseY >= HEIGHT/2:
-                print(clicked_col)
+                semer(clicked_col)
+                changer_joueur()
+                display()
             
     pygame.display.update()
     
