@@ -18,7 +18,7 @@ LINE_COLOR = (80, 60, 40)
 LINE_WIDTH = 15
 NB_COL = 8
 COL_SIZE = WIDTH/NB_COL
-PIONS = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
+PIONS = [3,3,3,17,3,3,0,3,3,3,3,3,3,0]
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
 
@@ -80,8 +80,12 @@ def get_nb_pions(col):
     
 
 def semer(col):
+    global rejouer
+    rejouer = False
     if joueur == 0:
         pions = PIONS[K1+col]
+        if ((pions+K1+col)%(K2+1) == K2):
+            rejouer = True
         if pions == 0:
             return False
         for pion in range(pions):
@@ -90,6 +94,8 @@ def semer(col):
             delay_display(300)
     else:
         pions = PIONS[col-1]
+        if ((pions+col-1)%(K2+1) == K1):
+            rejouer = True
         if pions == 0:
             return False
         for pion in range(pions):
@@ -119,13 +125,15 @@ def display_turn(ms):
     display()
 
 def changer_joueur():
-    global joueur
-    if joueur == 0:
-        joueur = 1
-    else:
-        joueur = 0
+    global joueur, rejouer
+    if not rejouer:
+        if joueur == 0:
+            joueur = 1
+        else:
+            joueur = 0
 
 joueur = 0
+rejouer = False
 game_over = False
 running = True
 
