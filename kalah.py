@@ -18,7 +18,7 @@ LINE_COLOR = (80, 60, 40)
 LINE_WIDTH = 15
 NB_COL = 8
 COL_SIZE = WIDTH/NB_COL
-PIONS = [3,3,3,17,3,3,0,3,3,3,3,3,3,0]
+PIONS = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
 
