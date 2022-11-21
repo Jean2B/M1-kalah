@@ -156,6 +156,29 @@ def changer_joueur():
         else:
             joueur = 0
 
+def end_check():
+    end = False
+    somme_j0 = 0
+    somme_j1 = 0
+    for pion in range(len(PIONS)):
+        if pion < K1:
+            somme_j1 += PIONS[pion]
+        elif pion > K1 and pion < K2:
+            somme_j0 += PIONS[pion]
+    if somme_j0 == 0:
+        for pion in range(K1):
+            PIONS[K1] += PIONS[pion]
+            PIONS[pion] = 0
+            delay_display(300)
+        end = True
+    elif somme_j1 == 0:
+        for pion in range(K1+1,K2):
+            PIONS[K2] += PIONS[pion]
+            PIONS[pion] = 0
+            delay_display(300)
+        end = True
+    return end
+
 joueur = 0
 rejouer = False
 game_over = False
@@ -184,9 +207,11 @@ while running:
                 ready = False
                 semer(clicked_col)
                 delay_display(2000)
-                changer_joueur()
-                display_turn(2000)
-                ready_tick = pygame.time.get_ticks()
+                game_over = end_check()
+                if not game_over:
+                    changer_joueur()
+                    display_turn(2000)
+                    ready_tick = pygame.time.get_ticks()
 
     pygame.display.update()
     clock.tick(FPS)
