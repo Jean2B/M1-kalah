@@ -10,6 +10,7 @@ pygame.init()
 
 WIDTH = 1000
 HEIGHT = 400
+FPS = 60
 
 BG_COLOR = (255, 180, 100)
 TEXT_COLOR = (255, 0, 0) #Pions
@@ -21,6 +22,8 @@ COL_SIZE = WIDTH/NB_COL
 PIONS = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
+
+clock = pygame.time.Clock()
 
 nom_j1 = input("Nom joueur 1 : ")
 nom_j2 = input("Nom joueur 2 : ")
@@ -136,30 +139,35 @@ joueur = 0
 rejouer = False
 game_over = False
 running = True
+ready = True
+ready_tick = 0
 
 display()
 
 while running:
     for event in pygame.event.get():
-        ready = True
+        if not ready:
+            #Délai avant d'accepter les clics
+            ready = (pygame.time.get_ticks() > ready_tick + (FPS/2))
+        
         if event.type == pygame.QUIT:
             running = False
         
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            ready = False
+        if event.type == pygame.MOUSEBUTTONDOWN and ready:
             mouseX = event.pos[0] 
             mouseY = event.pos[1] 
             clicked_col = int(mouseX // COL_SIZE)
             if clicked_col not in [0, NB_COL-1] \
                 and mouseY >= HEIGHT/2 \
                 and get_nb_pions(clicked_col) != 0:
+                ready = False
                 semer(clicked_col)
                 delay_display(2000)
                 changer_joueur()
                 display_turn(2000)
-        if not ready:
-            break
+                ready_tick = pygame.time.get_ticks()
 
     pygame.display.update()
+    clock.tick(FPS)
     
 pygame.quit()
