@@ -92,7 +92,8 @@ def semer(col):
         if pions == 0:
             return False
         #Vérification si le joueur rejoue
-        if ((pions+K1+col)%(K2+1) == K2):
+        pion_final = (pions+K1+col)%(K2+1) #Indice du dernier pion posé
+        if (pion_final == K2):
             rejouer = True
         #Pions semés
         for pion in range(pions):
@@ -100,10 +101,10 @@ def semer(col):
             PIONS[K1+col] -= 1
             delay_display(300)
         #Vérification s'il y a récolte
-        if (PIONS[(pions+K1+col)%(K2+1)] == 1) and not rejouer:
-            PIONS[K2] += PIONS[(pions+K1+col)%(K2+1)] + PIONS[K2-1-((pions+K1+col)%(K2+1))]
-            PIONS[(pions+K1+col)%(K2+1)] = 0
-            PIONS[K2-1-(pions+K1+col)%(K2+1)] = 0
+        if pion_final > K1 and pion_final < K2 and (PIONS[pion_final] == 1):
+            PIONS[K2] += PIONS[pion_final] + PIONS[K2-1-pion_final]
+            PIONS[pion_final] = 0
+            PIONS[K2-1-pion_final] = 0
             delay_display(300)
             
     else:
@@ -113,7 +114,8 @@ def semer(col):
         if pions == 0:
             return False
         #Vérification si le joueur rejoue
-        if ((col+pions-1)%(K2+1) == K1):
+        pion_final = (col+pions-1)%(K2+1) #Indice du dernier pion posé
+        if (pion_final == K1):
             rejouer = True
         #Pions semés
         for pion in range(pions):
@@ -121,10 +123,10 @@ def semer(col):
             PIONS[col-1] -= 1
             delay_display(300)
         #Vérification s'il y a récolte
-        if (PIONS[(col+pions-1)%(K2+1)] == 1) and not rejouer:
-            PIONS[K1] += PIONS[(col+pions-1)%(K2+1)] + PIONS[K2-1-((col+pions-1)%(K2+1))]
-            PIONS[(col+pions-1)%(K2+1)] = 0
-            PIONS[K2-1-((col+pions-1)%(K2+1))] = 0
+        if pion_final < K1 and (PIONS[pion_final] == 1):
+            PIONS[K1] += PIONS[pion_final] + PIONS[K2-1-pion_final]
+            PIONS[pion_final] = 0
+            PIONS[K2-1-pion_final] = 0
             delay_display(300)
     print(PIONS)
 
