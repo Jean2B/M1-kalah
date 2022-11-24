@@ -8,16 +8,21 @@ import numpy as np
 
 pygame.init()
 
+#Résolution
 WIDTH = 1000
 HEIGHT = 400
 FPS = 60
 
+#Couleurs
 BG_COLOR = (255, 180, 100)
 TEXT_COLOR = (255, 0, 0) #Pions
 TEXT2_COLOR = (0, 0, 255) #Joueurs
+TEXT3_COLOR = (64, 0, 128) #Pions cliquables
+#Nombre et taille des lignes et colonnes
 LINE_COLOR = (80, 60, 40)
 LINE_WIDTH = 15
 NB_COL = 8
+#Initialisation des pions et cases
 COL_SIZE = WIDTH/NB_COL
 PIONS = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
 K1 = NB_COL-2 #6, indice du kalah 1
@@ -48,19 +53,26 @@ def draw_lines():
 def display_text():
     for pion in range(len(PIONS)):
         imgfont = font.render(str(PIONS[pion]), True, TEXT_COLOR)
+        imgfont2 = font.render(str(PIONS[pion]), True, TEXT3_COLOR)
         if joueur == 0:
             if pion < K1:
                 screen.blit(imgfont, (COL_SIZE*(K1-pion)+COL_SIZE/2, HEIGHT/4))
             elif pion == K1:
                 screen.blit(imgfont, (COL_SIZE/2, HEIGHT/2))
             elif pion < K2:
-                screen.blit(imgfont, (COL_SIZE*(pion-K1)+COL_SIZE/2, HEIGHT*3/4))
+                if PIONS[pion] == 0: #Pions non cliquables
+                    screen.blit(imgfont, (COL_SIZE*(pion-K1)+COL_SIZE/2, HEIGHT*3/4))
+                else: #Pions cliquables
+                    screen.blit(imgfont2, (COL_SIZE*(pion-K1)+COL_SIZE/2, HEIGHT*3/4))
             else:
                 screen.blit(imgfont, (WIDTH-COL_SIZE/2, HEIGHT/2))
             imgfont = font2.render(nom_j1, True, TEXT2_COLOR)
         elif joueur == 1:
             if pion < K1:
-                screen.blit(imgfont, (COL_SIZE*(pion+1)+COL_SIZE/2, HEIGHT*3/4))
+                if PIONS[pion] == 0: #Pions non cliquables
+                    screen.blit(imgfont, (COL_SIZE*(pion+1)+COL_SIZE/2, HEIGHT*3/4))
+                else: #Pions cliquables
+                    screen.blit(imgfont2, (COL_SIZE*(pion+1)+COL_SIZE/2, HEIGHT*3/4))
             elif pion == K1:
                 screen.blit(imgfont, (WIDTH-COL_SIZE/2, HEIGHT/2))
             elif pion < K2:
@@ -128,7 +140,6 @@ def semer(col):
             PIONS[pion_final] = 0
             PIONS[K2-1-pion_final] = 0
             delay_display(300)
-    print(PIONS)
 
 def delay_display(ms):
     pygame.time.delay(ms)
@@ -181,12 +192,24 @@ def end_check():
         end = True
     return end
 
-joueur = 0
-rejouer = False
-game_over = False
-running = True
-ready = True
-ready_tick = 0
+def display_end():
+    if PIONS[K1] < PIONS[K2]:
+        msg = nom_j1 + " a gagné"
+    elif PIONS[K1] > PIONS[K2]:
+        msg = nom_j2 + " a gagné"
+    else:
+        msg = "Égalité"
+    imgfont = font3.render(msg, True, TEXT2_COLOR)
+    text_rect = imgfont.get_rect(center=(WIDTH/2, HEIGHT/2))
+    pygame.draw.rect(screen, (255,255,255), text_rect)
+    screen.blit(imgfont, text_rect)
+
+joueur = 0 #Numéro du joueur à qui c'est le tour
+rejouer = False #True si le joueur peut rejouer
+game_over = False #True si la partie est terminée
+running = True #True tant que le jeu tourne
+ready = True #True tant qu'il est possible de cliquer (hors des animations)
+ready_tick = 0 #Ticks du jeu en cours
 
 display()
 
@@ -200,6 +223,7 @@ while running:
             running = False
         
         if event.type == pygame.MOUSEBUTTONDOWN and ready:
+            #Appel des fonctions lors d'un tour
             mouseX = event.pos[0] 
             mouseY = event.pos[1] 
             clicked_col = int(mouseX // COL_SIZE)
@@ -210,10 +234,13 @@ while running:
                 semer(clicked_col)
                 delay_display(2000)
                 game_over = end_check()
-                if not game_over:
+                if game_over:
+                    display_end()
+                else:
                     changer_joueur()
                     display_turn(2000)
                     ready_tick = pygame.time.get_ticks()
+                print(PIONS)
 
     pygame.display.update()
     clock.tick(FPS)
