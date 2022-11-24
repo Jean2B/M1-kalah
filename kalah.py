@@ -8,6 +8,9 @@ import numpy as np
 
 pygame.init()
 
+#Sauvegarde
+SAVEFILE = "kalah1.txt"
+
 #Résolution
 WIDTH = 1000
 HEIGHT = 400
@@ -24,7 +27,7 @@ LINE_WIDTH = 15
 NB_COL = 8
 #Initialisation des pions et cases
 COL_SIZE = WIDTH/NB_COL
-PIONS = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
+PIONS_INIT = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
 
@@ -51,16 +54,16 @@ def draw_lines():
     pygame.draw.line(screen, LINE_COLOR, (COL_SIZE, HEIGHT/2), (WIDTH-COL_SIZE, HEIGHT/2), LINE_WIDTH)
 
 def display_text():
-    for pion in range(len(PIONS)):
-        imgfont = font.render(str(PIONS[pion]), True, TEXT_COLOR)
-        imgfont2 = font.render(str(PIONS[pion]), True, TEXT3_COLOR)
+    for pion in range(len(pions)):
+        imgfont = font.render(str(pions[pion]), True, TEXT_COLOR)
+        imgfont2 = font.render(str(pions[pion]), True, TEXT3_COLOR)
         if joueur == 0:
             if pion < K1:
                 screen.blit(imgfont, (COL_SIZE*(K1-pion)+COL_SIZE/2, HEIGHT/4))
             elif pion == K1:
                 screen.blit(imgfont, (COL_SIZE/2, HEIGHT/2))
             elif pion < K2:
-                if PIONS[pion] == 0: #Pions non cliquables
+                if pions[pion] == 0: #Pions non cliquables
                     screen.blit(imgfont, (COL_SIZE*(pion-K1)+COL_SIZE/2, HEIGHT*3/4))
                 else: #Pions cliquables
                     screen.blit(imgfont2, (COL_SIZE*(pion-K1)+COL_SIZE/2, HEIGHT*3/4))
@@ -69,7 +72,7 @@ def display_text():
             imgfont = font2.render(nom_j1, True, TEXT2_COLOR)
         elif joueur == 1:
             if pion < K1:
-                if PIONS[pion] == 0: #Pions non cliquables
+                if pions[pion] == 0: #Pions non cliquables
                     screen.blit(imgfont, (COL_SIZE*(pion+1)+COL_SIZE/2, HEIGHT*3/4))
                 else: #Pions cliquables
                     screen.blit(imgfont2, (COL_SIZE*(pion+1)+COL_SIZE/2, HEIGHT*3/4))
@@ -89,56 +92,56 @@ def display():
 
 def get_nb_pions(col):
     if joueur == 0:
-        return PIONS[K1+col]
+        return pions[K1+col]
     else:
-        return PIONS[col-1]
+        return pions[col-1]
     
 
 def semer(col):
-    global rejouer
+    global pions,rejouer
     rejouer = False
     if joueur == 0:
         #Nombre de pions dans la case choisie
-        pions = PIONS[K1+col]
+        nb_pions = pions[K1+col]
         #Vérification case vide
-        if pions == 0:
+        if nb_pions == 0:
             return False
         #Vérification si le joueur rejoue
-        pion_final = (pions+K1+col)%(K2+1) #Indice du dernier pion posé
+        pion_final = (nb_pions+K1+col)%(K2+1) #Indice du dernier pion posé
         if (pion_final == K2):
             rejouer = True
         #Pions semés
-        for pion in range(pions):
-            PIONS[(K1+1+col+pion)%(K2+1)] += 1
-            PIONS[K1+col] -= 1
+        for pion in range(nb_pions):
+            pions[(K1+1+col+pion)%(K2+1)] += 1
+            pions[K1+col] -= 1
             delay_display(300)
         #Vérification s'il y a récolte
-        if pion_final > K1 and pion_final < K2 and (PIONS[pion_final] == 1):
-            PIONS[K2] += PIONS[pion_final] + PIONS[K2-1-pion_final]
-            PIONS[pion_final] = 0
-            PIONS[K2-1-pion_final] = 0
+        if pion_final > K1 and pion_final < K2 and (pions[pion_final] == 1):
+            pions[K2] += pions[pion_final] + pions[K2-1-pion_final]
+            pions[pion_final] = 0
+            pions[K2-1-pion_final] = 0
             delay_display(300)
             
     else:
         #Nombre de pions dans la case choisie
-        pions = PIONS[col-1]
+        nb_pions = pions[col-1]
         #Vérification case vide
-        if pions == 0:
+        if nb_pions == 0:
             return False
         #Vérification si le joueur rejoue
-        pion_final = (col+pions-1)%(K2+1) #Indice du dernier pion posé
+        pion_final = (col+nb_pions-1)%(K2+1) #Indice du dernier pion posé
         if (pion_final == K1):
             rejouer = True
         #Pions semés
-        for pion in range(pions):
-            PIONS[(col+pion)%(K2+1)] += 1
-            PIONS[col-1] -= 1
+        for pion in range(nb_pions):
+            pions[(col+pion)%(K2+1)] += 1
+            pions[col-1] -= 1
             delay_display(300)
         #Vérification s'il y a récolte
-        if pion_final < K1 and (PIONS[pion_final] == 1):
-            PIONS[K1] += PIONS[pion_final] + PIONS[K2-1-pion_final]
-            PIONS[pion_final] = 0
-            PIONS[K2-1-pion_final] = 0
+        if pion_final < K1 and (pions[pion_final] == 1):
+            pions[K1] += pions[pion_final] + pions[K2-1-pion_final]
+            pions[pion_final] = 0
+            pions[K2-1-pion_final] = 0
             delay_display(300)
 
 def delay_display(ms):
@@ -164,38 +167,36 @@ def display_turn(ms):
 def changer_joueur():
     global joueur, rejouer
     if not rejouer:
-        if joueur == 0:
-            joueur = 1
-        else:
-            joueur = 0
+        joueur = (joueur+1)%2
 
 def end_check():
     end = False
     somme_j0 = 0
     somme_j1 = 0
-    for pion in range(len(PIONS)):
+    for pion in range(len(pions)):
         if pion < K1:
-            somme_j1 += PIONS[pion]
+            somme_j1 += pions[pion]
         elif pion > K1 and pion < K2:
-            somme_j0 += PIONS[pion]
+            somme_j0 += pions[pion]
     if somme_j0 == 0:
         for pion in range(K1):
-            PIONS[K1] += PIONS[pion]
-            PIONS[pion] = 0
+            pions[K1] += pions[pion]
+            pions[pion] = 0
             delay_display(300)
         end = True
     elif somme_j1 == 0:
         for pion in range(K1+1,K2):
-            PIONS[K2] += PIONS[pion]
-            PIONS[pion] = 0
+            pions[K2] += pions[pion]
+            pions[pion] = 0
             delay_display(300)
         end = True
     return end
 
 def display_end():
-    if PIONS[K1] < PIONS[K2]:
+    display()
+    if pions[K1] < pions[K2]:
         msg = nom_j1 + " a gagné"
-    elif PIONS[K1] > PIONS[K2]:
+    elif pions[K1] > pions[K2]:
         msg = nom_j2 + " a gagné"
     else:
         msg = "Égalité"
@@ -204,6 +205,7 @@ def display_end():
     pygame.draw.rect(screen, (255,255,255), text_rect)
     screen.blit(imgfont, text_rect)
 
+pions = PIONS_INIT.copy()
 joueur = 0 #Numéro du joueur à qui c'est le tour
 rejouer = False #True si le joueur peut rejouer
 game_over = False #True si la partie est terminée
@@ -240,7 +242,44 @@ while running:
                     changer_joueur()
                     display_turn(2000)
                     ready_tick = pygame.time.get_ticks()
-                print(PIONS)
+                print(pions)
+        
+        if event.type == pygame.KEYDOWN and ready:
+            #Bouton R : restart
+            if event.key == pygame.K_r:
+                ready = False
+                pions = PIONS_INIT.copy()
+                joueur = (joueur+1)%2
+                rejouer = False
+                game_over = False
+                running = True
+                display_turn(1000)
+            
+            #Bouton S : save
+            if event.key == pygame.K_s:
+                file = open(SAVEFILE, "w")
+                savemsg = f'{pions}\t{joueur}\t{rejouer}\t{game_over}\t{nom_j1}\t{nom_j2}'
+                file.write(savemsg)
+                print("Sauvegardé dans", SAVEFILE)
+                file.close()
+            
+            #Bouton L : load
+            if event.key == pygame.K_l:
+                file = open(SAVEFILE, "r")
+                savelist = file.read().split('\t')
+                pions = savelist[0].split("\t")[0][1:-1].split(", ")
+                pions = [int(pion) for pion in pions]
+                joueur = int(savelist[1])
+                rejouer = savelist[2] == 'True'
+                game_over = savelist[3] == 'True'
+                nom_j1 = savelist[4]
+                nom_j2 = savelist[5]
+                if game_over:
+                    display_end()
+                else:
+                    display_turn(1000)
+                file.close()
+            ready_tick = pygame.time.get_ticks()
 
     pygame.display.update()
     clock.tick(FPS)
