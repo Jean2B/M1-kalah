@@ -17,7 +17,7 @@ HEIGHT = 400
 FPS = 60
 
 #Jouer contre une IA (True/False)
-MODE_IA = True
+MODE_IA = False
 
 #Couleurs
 BG_COLOR = (255, 180, 100)
@@ -310,6 +310,10 @@ while running:
                 except OSError:
                     print("Impossible de charger la sauvegarde", SAVEFILE)
             ready_tick = pygame.time.get_ticks()
+            
+            if event.key == pygame.K_m:
+                MODE_IA = not MODE_IA
+                print("Mode IA :", MODE_IA)
 
     pygame.display.update()
     clock.tick(FPS)
