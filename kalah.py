@@ -26,13 +26,14 @@ LINE_COLOR = (80, 60, 40)
 LINE_WIDTH = 15
 NB_COL = 8
 COL_SIZE = WIDTH/NB_COL
-#Initialisation des pions et cases
+#Initialisation des cases
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
 
+#Initialisation des pions
 def set_pions():
     N = 3
-    diff = input("Sélectionner la difficulté (1/2/3/4) : ")
+    diff = input("Sélectionner la difficulté du jeu (1/2/3/4) : ")
     if (diff in ["1","2","3","4"]):
         N = int(diff) + 2
     else:
