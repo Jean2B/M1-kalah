@@ -252,7 +252,7 @@ while running:
         ready = (pygame.time.get_ticks() > ready_tick + (FPS/2))
         
     #Contrôles IA
-    if MODE_IA and joueur == 1 and ready:
+    if mode_ia and joueur == 1 and ready:
         clicked_col = get_choix_ia()
         tour()
     
@@ -265,7 +265,7 @@ while running:
             #Appel des fonctions lors d'un tour
             mouseX = event.pos[0] 
             mouseY = event.pos[1] 
-            if mouseY >= HEIGHT/2 and (not MODE_IA or joueur == 0):
+            if mouseY >= HEIGHT/2 and (not mode_ia or joueur == 0):
                 clicked_col = int(mouseX // COL_SIZE)
                 tour()
 
