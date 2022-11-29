@@ -16,6 +16,9 @@ WIDTH = 1000
 HEIGHT = 400
 FPS = 60
 
+#Jouer contre une IA (True/False)
+MODE_IA = True
+
 #Couleurs
 BG_COLOR = (255, 180, 100)
 TEXT_COLOR = (255, 0, 0) #Pions
@@ -29,8 +32,8 @@ COL_SIZE = WIDTH/NB_COL
 #Initialisation des cases
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
-MODE_IA = True
 
+#Initialisation des pions
 def set_pions():
     N = 3
     diff = input("Sélectionner la difficulté du jeu (1/2/3/4) : ")
