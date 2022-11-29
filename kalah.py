@@ -4,7 +4,7 @@ M1 DFS - Jean & Félicien BERTRAND
 """
 
 import pygame
-import numpy as np
+import random as rd
 
 pygame.init()
 
@@ -29,8 +29,8 @@ COL_SIZE = WIDTH/NB_COL
 #Initialisation des cases
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
+MODE_IA = True
 
-#Initialisation des pions
 def set_pions():
     N = 3
     diff = input("Sélectionner la difficulté du jeu (1/2/3/4) : ")
@@ -216,6 +216,25 @@ def display_end():
     pygame.draw.rect(screen, (255,255,255), text_rect)
     screen.blit(imgfont, text_rect)
 
+def get_choix_ia():
+    return rd.randint(1,NB_COL-1)
+
+def tour():
+    global clicked_col, ready, game_over, ready_tick
+    if clicked_col not in [0, NB_COL-1] \
+        and get_nb_pions(clicked_col) != 0:
+        ready = False
+        semer(clicked_col)
+        delay_display(2000)
+        game_over = end_check()
+        if game_over:
+            display_end()
+        else:
+            changer_joueur()
+            display_turn(2000)
+            ready_tick = pygame.time.get_ticks()
+        print(pions)
+
 pions = PIONS_INIT.copy()
 joueur = 0 #Numéro du joueur à qui c'est le tour
 rejouer = False #True si le joueur peut rejouer
@@ -227,11 +246,17 @@ ready_tick = 0 #Ticks du jeu en cours
 display()
 
 while running:
-    for event in pygame.event.get():
-        if not ready:
-            #Délai avant d'accepter les clics
-            ready = (pygame.time.get_ticks() > ready_tick + (FPS/2))
+    if not ready:
+        #Délai avant d'accepter les clics
+        ready = (pygame.time.get_ticks() > ready_tick + (FPS/2))
         
+    #Contrôles IA
+    if MODE_IA and joueur == 1 and ready:
+        clicked_col = get_choix_ia()
+        tour()
+    
+    #Contrôles joueur
+    for event in pygame.event.get():       
         if event.type == pygame.QUIT:
             running = False
         
@@ -239,22 +264,10 @@ while running:
             #Appel des fonctions lors d'un tour
             mouseX = event.pos[0] 
             mouseY = event.pos[1] 
-            clicked_col = int(mouseX // COL_SIZE)
-            if clicked_col not in [0, NB_COL-1] \
-                and mouseY >= HEIGHT/2 \
-                and get_nb_pions(clicked_col) != 0:
-                ready = False
-                semer(clicked_col)
-                delay_display(2000)
-                game_over = end_check()
-                if game_over:
-                    display_end()
-                else:
-                    changer_joueur()
-                    display_turn(2000)
-                    ready_tick = pygame.time.get_ticks()
-                print(pions)
-        
+            if mouseY >= HEIGHT/2 and (not MODE_IA or joueur == 0):
+                clicked_col = int(mouseX // COL_SIZE)
+                tour()
+
         if event.type == pygame.KEYDOWN and ready:
             #Bouton R : restart
             if event.key == pygame.K_r:
@@ -276,20 +289,23 @@ while running:
             
             #Bouton L : load
             if event.key == pygame.K_l:
-                file = open(SAVEFILE, "r")
-                savelist = file.read().split('\t')
-                pions = savelist[0].split("\t")[0][1:-1].split(", ")
-                pions = [int(pion) for pion in pions]
-                joueur = int(savelist[1])
-                rejouer = savelist[2] == 'True'
-                game_over = savelist[3] == 'True'
-                nom_j1 = savelist[4]
-                nom_j2 = savelist[5]
-                if game_over:
-                    display_end()
-                else:
-                    display_turn(1000)
-                file.close()
+                try:
+                    file = open(SAVEFILE, "r")
+                    savelist = file.read().split('\t')
+                    pions = savelist[0].split("\t")[0][1:-1].split(", ")
+                    pions = [int(pion) for pion in pions]
+                    joueur = int(savelist[1])
+                    rejouer = savelist[2] == 'True'
+                    game_over = savelist[3] == 'True'
+                    nom_j1 = savelist[4]
+                    nom_j2 = savelist[5]
+                    if game_over:
+                        display_end()
+                    else:
+                        display_turn(1000)
+                    file.close()
+                except OSError:
+                    print("Impossible de charger la sauvegarde", SAVEFILE)
             ready_tick = pygame.time.get_ticks()
 
     pygame.display.update()
