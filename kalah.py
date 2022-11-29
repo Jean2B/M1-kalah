@@ -21,15 +21,25 @@ BG_COLOR = (255, 180, 100)
 TEXT_COLOR = (255, 0, 0) #Pions
 TEXT2_COLOR = (0, 0, 255) #Joueurs
 TEXT3_COLOR = (64, 0, 128) #Pions cliquables
-#Nombre et taille des lignes et colonnes
 LINE_COLOR = (80, 60, 40)
+#Nombre et taille des lignes et colonnes
 LINE_WIDTH = 15
 NB_COL = 8
-#Initialisation des pions et cases
 COL_SIZE = WIDTH/NB_COL
-PIONS_INIT = [3,3,3,3,3,3,0,3,3,3,3,3,3,0]
+#Initialisation des pions et cases
 K1 = NB_COL-2 #6, indice du kalah 1
 K2 = K1*2 + 1 #13, indice du kalah 2
+
+def set_pions():
+    N = 3
+    diff = input("Sélectionner la difficulté (1/2/3/4) : ")
+    if (diff in ["1","2","3","4"]):
+        N = int(diff) + 2
+    else:
+        print("Difficulté 1 par défaut")
+    return [N,N,N,N,N,N,0,N,N,N,N,N,N,0]
+
+PIONS_INIT = set_pions()
 
 clock = pygame.time.Clock()
 
