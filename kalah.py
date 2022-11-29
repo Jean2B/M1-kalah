@@ -16,9 +16,6 @@ WIDTH = 1000
 HEIGHT = 400
 FPS = 60
 
-#Jouer contre une IA (True/False)
-MODE_IA = False
-
 #Couleurs
 BG_COLOR = (255, 180, 100)
 TEXT_COLOR = (255, 0, 0) #Pions
@@ -239,6 +236,7 @@ def tour():
         print(pions)
 
 pions = PIONS_INIT.copy()
+mode_ia = False #Jouer contre une IA (True/False)
 joueur = 0 #Numéro du joueur à qui c'est le tour
 rejouer = False #True si le joueur peut rejouer
 game_over = False #True si la partie est terminée
@@ -311,9 +309,10 @@ while running:
                     print("Impossible de charger la sauvegarde", SAVEFILE)
             ready_tick = pygame.time.get_ticks()
             
+            #Bouton M : changement de mode (2 joueurs ou Joueur vs IA)
             if event.key == pygame.K_m:
-                MODE_IA = not MODE_IA
-                print("Mode IA :", MODE_IA)
+                mode_ia = not mode_ia
+                print("Mode IA :", mode_ia)
 
     pygame.display.update()
     clock.tick(FPS)
