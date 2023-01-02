@@ -5,6 +5,7 @@ M1 DFS - Jean & Félicien BERTRAND
 
 import pygame
 import random as rd
+import math
 
 pygame.init()
 
@@ -106,7 +107,6 @@ def get_nb_pions(col):
         return pions[K1+col]
     else:
         return pions[col-1]
-    
 
 def semer(col):
     global pions,rejouer
@@ -154,6 +154,75 @@ def semer(col):
             pions[pion_final] = 0
             pions[K2-1-pion_final] = 0
             delay_display(300)
+
+#Calcul par l'IA de la nouvelle position après un coup
+def semer_ia(lst_pions, joueur, lst_col, lst_valide):
+    pions = lst_pions[-1]
+    cols = lst_col[-1].copy()
+    rejouer = False
+    valide = False
+    if joueur == 0:
+        #Nombre de pions dans la case choisie
+        nb_pions = pions[K1+cols[-1]]
+        #Vérification case vide
+        if nb_pions != 0:
+            valide = True
+            #Vérification si le joueur rejoue
+            pion_final = (nb_pions+K1+cols[-1])%(K2+1) #Indice du dernier pion posé
+            if (pion_final == K2):
+                rejouer = True
+            #Pions semés
+            for pion in range(nb_pions):
+                pions[(K1+1+cols[-1]+pion)%(K2+1)] += 1
+                pions[K1+cols[-1]] -= 1
+            #Vérification s'il y a récolte
+            if pion_final > K1 and pion_final < K2 and (pions[pion_final] == 1):
+                pions[K2] += pions[pion_final] + pions[K2-1-pion_final]
+                pions[pion_final] = 0
+                pions[K2-1-pion_final] = 0
+            #Récursivité si rejouer
+            if rejouer:
+                cols.append(0)
+                lst_pions.pop(-1)
+                lst_col.pop(-1)
+                lst_pions.append(pions.copy())
+                for col in range(1,NB_COL-1):
+                    cols[-1] = col
+                    lst_col.append(cols.copy())
+                    lst_pions.append(pions.copy())
+                    lst_pions, lst_valide, lst_col = semer_ia(lst_pions, joueur, lst_col, lst_valide)
+    else:
+        #Nombre de pions dans la case choisie
+        nb_pions = pions[cols[-1]-1]
+        #Vérification case vide
+        if nb_pions != 0:
+            valide = True
+            #Vérification si le joueur rejoue
+            pion_final = (cols[-1]+nb_pions-1)%(K2+1) #Indice du dernier pion posé
+            if (pion_final == K1):
+                rejouer = True
+            #Pions semés
+            for pion in range(nb_pions):
+                pions[(cols[-1]+pion)%(K2+1)] += 1
+                pions[cols[-1]-1] -= 1
+            #Vérification s'il y a récolte
+            if pion_final < K1 and (pions[pion_final] == 1):
+                pions[K1] += pions[pion_final] + pions[K2-1-pion_final]
+                pions[pion_final] = 0
+                pions[K2-1-pion_final] = 0
+            #Récursivité si rejouer
+            if rejouer:
+                cols.append(0)
+                lst_pions.pop(-1)
+                lst_col.pop(-1)
+                for col in range(1,NB_COL-1):
+                    cols[-1] = col
+                    lst_col.append(cols.copy())
+                    lst_pions.append(pions.copy())
+                    lst_pions, lst_valide, lst_col = semer_ia(lst_pions, joueur, lst_col, lst_valide)
+    if not rejouer:
+        lst_valide.append(valide)
+    return lst_pions, lst_valide, lst_col
 
 def delay_display(ms):
     pygame.time.delay(ms)
@@ -216,8 +285,35 @@ def display_end():
     pygame.draw.rect(screen, (255,255,255), text_rect)
     screen.blit(imgfont, text_rect)
 
+def get_best_move(minmax_tree):
+    best_score = max(minmax_tree)
+    best_move_i = rd.randint(0, len(minmax_tree[best_score])-1)
+    best_move = minmax_tree[best_score][best_move_i]
+    print(best_move)
+    return best_move
+
 def get_choix_ia():
-    return rd.randint(1,NB_COL-1)
+    #Récupération de la position actuelle
+    global pions
+    current_pos = pions.copy()
+    current_joueur = 1
+    #Choix du meilleur coup par l'algorithme MinMax
+    minmax_tree = {}
+    for col in range(1, NB_COL-1):
+        new_pos, valide, lst_col = semer_ia([current_pos.copy()], current_joueur, [[col]], [])
+        #Calcul de la différence de score entre l'IA et l'adversaire
+        for move in range(len(lst_col)):
+            if valide:
+                score = new_pos[move][K1] - new_pos[move][K2]
+            else:
+                score = -math.inf
+            if score not in minmax_tree.keys():
+                minmax_tree[score] = [lst_col[move]]
+            else:
+                minmax_tree[score] += [lst_col[move]]
+    print(minmax_tree)
+    best_move = get_best_move(minmax_tree)
+    return best_move
 
 def tour():
     global clicked_col, ready, game_over, ready_tick
@@ -252,9 +348,11 @@ while running:
         ready = (pygame.time.get_ticks() > ready_tick + (FPS/2))
         
     #Contrôles IA
-    if MODE_IA and joueur == 1 and ready:
-        clicked_col = get_choix_ia()
-        tour()
+    if mode_ia and joueur == 1 and ready:
+        lst_clicked_col = get_choix_ia()
+        for i in range(len(lst_clicked_col)):
+            clicked_col = lst_clicked_col[i]
+            tour()
     
     #Contrôles joueur
     for event in pygame.event.get():       
@@ -265,7 +363,7 @@ while running:
             #Appel des fonctions lors d'un tour
             mouseX = event.pos[0] 
             mouseY = event.pos[1] 
-            if mouseY >= HEIGHT/2 and (not MODE_IA or joueur == 0):
+            if mouseY >= HEIGHT/2 and (not mode_ia or joueur == 0):
                 clicked_col = int(mouseX // COL_SIZE)
                 tour()
 
