@@ -20,6 +20,6 @@ Au démarrage:
 
 Cliquer sur une case bleue pour jouer un coup  
 R : Recommencer (le joueur qui commence change)  
-S : Sauvergarder une partie  
+S : Sauvegarder une partie  
 L : Charger une partie  
 M : Mode de jeu (2 joueurs, ou joueur vs IA)
