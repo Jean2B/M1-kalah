@@ -289,7 +289,6 @@ def get_best_move(minmax_tree):
     best_score = max(minmax_tree)
     best_move_i = rd.randint(0, len(minmax_tree[best_score])-1)
     best_move = minmax_tree[best_score][best_move_i]
-    print(best_move)
     return best_move
 
 def get_choix_ia():
@@ -311,7 +310,6 @@ def get_choix_ia():
                 minmax_tree[score] = [lst_col[move]]
             else:
                 minmax_tree[score] += [lst_col[move]]
-    print(minmax_tree)
     best_move = get_best_move(minmax_tree)
     return best_move
 
